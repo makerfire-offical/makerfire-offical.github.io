@@ -254,7 +254,7 @@ var dataPackage = {
 	var port = chrome.runtime.connect(googleKey,{name: "Ghost"});
 
 	port.onMessage.addListener(function(msg) {
-		//console.log(msg);
+		//console.log(msg.serial);
 		
 		if ((msg.lang != lang) && (msg.lang != undefined))
 		{
@@ -355,23 +355,11 @@ var dataPackage = {
 		
 		return false;
 	};
-
-    function processInput(msg) {
-		if(msg && connected == false)
-		{
-			connected = true;
-		}
-		else
-		{
-			connected = false;
-			window.clearInterval(timerId);
-		}
-    }
 	
     function toDo5Hz(){
 		scratchData[0] = dataPackage.get_flightData;
 		scratchData[1] = 0;
-		chrome.runtime.sendMessage(googleKey, scratchData, processInput);
+		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
 		console.log(scratchData[0]);
 	}
 
