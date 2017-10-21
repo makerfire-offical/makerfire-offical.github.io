@@ -280,7 +280,7 @@ var dataPackage = {
 		}	
 		else if((msg.serial == "close") && (msg.serial != undefined))
 		{
-			window.clearInterval(timerId);
+			//window.clearInterval(timerId);
 		}
 		else if((msg.serial == "open") && (msg.serial != undefined))
 		{
