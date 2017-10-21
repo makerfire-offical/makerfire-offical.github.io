@@ -118,20 +118,20 @@ var dataPackage = {
     ext.armFlight = function(){
         //console.log("arm flight ");
 		scratchData = [dataPackage.arm, 1];
-		chrome.runtime.sendMessage(googleKey, scratchData, processInput);
+		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
     };
 	
 	ext.disarmFlight = function(){
         //console.log("disarm flight ");
 		scratchData = [dataPackage.arm, 0];
-		chrome.runtime.sendMessage(googleKey, scratchData, processInput);
+		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
     };
 
     ext.calibrate = function(){
 		scratchData = [dataPackage.calibrate, 1];
-		chrome.runtime.sendMessage(googleKey, scratchData, processInput);
+		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
 		scratchData = [dataPackage.calibrate, 0];
-		chrome.runtime.sendMessage(googleKey, scratchData, processInput);
+		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
     };
 
     ext.runMotor =  function(motor, speed){
@@ -139,7 +139,7 @@ var dataPackage = {
 		speed = Number(speed);
 		motorNum = Number(motor[1]) + dataPackage.motor_1 - 1;
 		scratchData = [motorNum, speed];
-		chrome.runtime.sendMessage(googleKey, scratchData, processInput);
+		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
     };
 
     ext.runLed = function(led,onoff){
@@ -153,7 +153,7 @@ var dataPackage = {
 		{
 			if(color == menus.zh.color[i] || color == menus.en.color[i]){
 				scratchData = [dataPackage.color, i];
-				chrome.runtime.sendMessage(googleKey, scratchData, processInput);
+				chrome.runtime.sendMessage(googleKey, scratchData, function(){});
 				return;
 			}
 		}
@@ -169,7 +169,7 @@ var dataPackage = {
 		{
 			scratchData = [dataPackage.beep, 0];
 		}
-		chrome.runtime.sendMessage(googleKey, scratchData, processInput);
+		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
 
 		//sendMsg({'proto':'beeper','time':time});
 	}
@@ -207,7 +207,7 @@ var dataPackage = {
 			t_distance += Number(distance);
 		}
 		scratchData = [t_xy, t_distance];
-		chrome.runtime.sendMessage(googleKey, scratchData, processInput);
+		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
 	};
 	
 	ext.runRotate = function(rotate,angle) {
@@ -221,19 +221,19 @@ var dataPackage = {
 	};
 	
 	ext.forward_dir = function(){
-		chrome.runtime.sendMessage(googleKey, [dataPackage.dir, 1], processInput);
+		chrome.runtime.sendMessage(googleKey, [dataPackage.dir, 1], function(){});
 	};
 	ext.back_dir = function(){
-		chrome.runtime.sendMessage(googleKey, [dataPackage.dir, 2], processInput);
+		chrome.runtime.sendMessage(googleKey, [dataPackage.dir, 2], function(){});
 	};
 	ext.left_dir = function(){
-		chrome.runtime.sendMessage(googleKey, [dataPackage.dir, 3], processInput);
+		chrome.runtime.sendMessage(googleKey, [dataPackage.dir, 3], function(){});
 	};
 	ext.right_dir = function(){
-		chrome.runtime.sendMessage(googleKey, [dataPackage.dir, 4], processInput);
+		chrome.runtime.sendMessage(googleKey, [dataPackage.dir, 4], function(){});
 	};
 	ext.center_dir = function(){
-		chrome.runtime.sendMessage(googleKey, [dataPackage.dir, 0], processInput);
+		chrome.runtime.sendMessage(googleKey, [dataPackage.dir, 0], function(){});
 	};
 	
 	ext.runAltitude = function(distance) {
@@ -247,7 +247,7 @@ var dataPackage = {
 			distance = 0;
 		}
 		scratchData = [dataPackage.set_z, Number(distance)];
-		chrome.runtime.sendMessage(googleKey, scratchData, processInput);
+		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
 	};
 	
 	var flightData = new Object();
@@ -357,9 +357,9 @@ var dataPackage = {
 	};
 	
     function toDo5Hz(){
-		//scratchData[0] = dataPackage.get_flightData;
-		//scratchData[1] = 0;
-		//chrome.runtime.sendMessage(googleKey, scratchData, function(){});
+		scratchData[0] = dataPackage.get_flightData;
+		scratchData[1] = 0;
+		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
 		console.log(scratchData[1]);
 	}
 
