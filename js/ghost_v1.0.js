@@ -357,9 +357,9 @@ var dataPackage = {
 	};
 	
     function toDo5Hz(){
-		scratchData[0] = dataPackage.get_flightData;
-		scratchData[1] = 0;
-		//chrome.runtime.sendMessage(googleKey, scratchData, function(){});
+		//scratchData[0] = dataPackage.get_flightData;
+		//scratchData[1] = 0;
+		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
 		console.log(scratchData[0]);
 	}
 
