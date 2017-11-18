@@ -182,34 +182,32 @@ var dataPackage = {
 		console.log("run flight direction "+dir+" "+distance);
 		var t_xy = -1;
 		var t_distance = [0, 0];
-		/* if(Number(distance) > 127)
-		{
-			distance = 127;
-		}
-		else */ if(Number(distance) < 0)
+		if(Number(distance) < 0)
 		{
 			distance = 0;
 		}
 		if(dir == "FORWARD" || dir == "前边")
 		{
 			t_xy = dataPackage.set_y;
-			t_distance += Number(distance);
+			t_distance[0] = Number(distance);
 		}
 		else if(dir == "BACKWARD" || dir == "后边")
 		{
 			t_xy = dataPackage.set_y;
-			t_distance -= Number(distance);
+			t_distance[0] = -Number(distance);
 		}
 		else if(dir == "LEFT" || dir == "左边")
 		{
 			t_xy = dataPackage.set_x;
-			t_distance -= Number(distance);
+			t_distance[0] = -Number(distance);
 		}
 		else if(dir == "RIGHT" || dir == "右边")
 		{
 			t_xy = dataPackage.set_x;
-			t_distance += Number(distance);
+			t_distance[0] = Number(distance);
 		}
+		t_distance[1] = t_distance[0]%256;
+		t_distance[0] = Math.parseInt(t_distance[0]/256);
 		scratchData = [t_xy, t_distance];
 		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
 	};
