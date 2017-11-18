@@ -56,6 +56,8 @@ var dataPackage = {
 			['r', 'PitchAngle', 'pAngle'],
 			['r', 'flight voltage', 'voltage'],
 			['r', 'current high', 'high'],
+			['r', 'position X'， 'flightX'],
+			['r', 'position Y'， 'flightY'],
 		],
 		zh:[
 			[' ', '校准', 'calibrate'],
@@ -78,6 +80,8 @@ var dataPackage = {
 			['r', '俯仰角', 'pAngle'],
 			['r', '飞机电压', 'voltage'],
 			['r', '当前高度', 'high'],
+			['r', '飞机X'， 'flightX'],
+			['r', '飞机Y'， 'flightY'],
 		]
 	}
 	var menus = {
@@ -177,12 +181,12 @@ var dataPackage = {
 	ext.runDirection = function(dir,distance) {
 		console.log("run flight direction "+dir+" "+distance);
 		var t_xy = -1;
-		var t_distance = 127;
-		if(Number(distance) > 127)
+		var t_distance = [0, 0];
+		/* if(Number(distance) > 127)
 		{
 			distance = 127;
 		}
-		else if(Number(distance) < 0)
+		else */ if(Number(distance) < 0)
 		{
 			distance = 0;
 		}
@@ -316,6 +320,16 @@ var dataPackage = {
 		//var high = flightData[4] + flightDataa[5]*256;
 		//high = high > 32767 ? (high - 65536)/10 : high/10;
 		return flightData[4];
+	};
+	ext.flightX = function() {
+		var x = flightData[0] + flightData[1]*256;
+		x = x > 32767 ? (x - 65536)/10 : x/10;
+		return x;
+	};
+	ext.flightX = function() {
+		var y = flightData[2] + flightData[3]*256;
+		y = y > 32767 ? (y - 65536)/10 : y/10;
+		return y;
 	};
 	
 	ext.altMode = function(altFlag) {
