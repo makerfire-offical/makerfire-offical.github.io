@@ -1,7 +1,6 @@
 /*	*/
 
 var googleKey = 'fjplhgbgoondbapbljoeppadnkfdmold';
-var scratchData = [0, 0];
 var dataPackage = {
 	arm:0,
 	motor_1:1,
@@ -56,8 +55,8 @@ var dataPackage = {
 			['r', 'PitchAngle', 'pAngle'],
 			['r', 'flight voltage', 'voltage'],
 			['r', 'current high', 'high'],
-			['r', 'position X'， 'flightX'],
-			['r', 'position Y'， 'flightY'],
+			['r', 'position X', 'flightX'],
+			['r', 'position Y', 'flightY'],
 		],
 		zh:[
 			[' ', '校准', 'calibrate'],
@@ -80,8 +79,8 @@ var dataPackage = {
 			['r', '俯仰角', 'pAngle'],
 			['r', '飞机电压', 'voltage'],
 			['r', '当前高度', 'high'],
-			['r', '飞机X'， 'flightX'],
-			['r', '飞机Y'， 'flightY'],
+			['r', '飞机X', 'flightX'],
+			['r', '飞机Y', 'flightY'],
 		]
 	}
 	var menus = {
@@ -119,31 +118,33 @@ var dataPackage = {
 		return { status:2, msg:'Connected' };
     };
 
+	ext._shutdown = function() {};
+	
     ext.armFlight = function(){
         //console.log("arm flight ");
-		scratchData = [dataPackage.arm, 1];
-		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
+		var sendData = [dataPackage.arm, 1];
+		chrome.runtime.sendMessage(googleKey, sendData, function(){});
     };
 	
 	ext.disarmFlight = function(){
         //console.log("disarm flight ");
-		scratchData = [dataPackage.arm, 0];
-		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
+		var sendData = [dataPackage.arm, 0];
+		chrome.runtime.sendMessage(googleKey, sendData, function(){});
     };
 
     ext.calibrate = function(){
-		scratchData = [dataPackage.calibrate, 1];
-		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
-		scratchData = [dataPackage.calibrate, 0];
-		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
+		var sendData = [dataPackage.calibrate, 1];
+		chrome.runtime.sendMessage(googleKey, sendData, function(){});
+		sendData = [dataPackage.calibrate, 0];
+		chrome.runtime.sendMessage(googleKey, sendData, function(){});
     };
 
     ext.runMotor =  function(motor, speed){
         //console.log("run motor "+motor+" "+speed);
 		speed = Number(speed);
 		motorNum = Number(motor[1]) + dataPackage.motor_1 - 1;
-		scratchData = [motorNum, speed];
-		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
+		var sendData = [motorNum, speed];
+		chrome.runtime.sendMessage(googleKey, sendData, function(){});
     };
 
     ext.runLed = function(led,onoff){
@@ -156,8 +157,8 @@ var dataPackage = {
 		for(var i = 0; i < menus.en.color.length; i++)
 		{
 			if(color == menus.zh.color[i] || color == menus.en.color[i]){
-				scratchData = [dataPackage.color, i];
-				chrome.runtime.sendMessage(googleKey, scratchData, function(){});
+				var sendData = [dataPackage.color, i];
+				chrome.runtime.sendMessage(googleKey, sendData, function(){});
 				return;
 			}
 		}
@@ -167,13 +168,13 @@ var dataPackage = {
 		console.log("beep:"+onOff);
 		if(onOff == "打开")
 		{
-			scratchData = [dataPackage.beep, 1];
+			var sendData = [dataPackage.beep, 1];
 		}
 		else
 		{
-			scratchData = [dataPackage.beep, 0];
+			var sendData = [dataPackage.beep, 0];
 		}
-		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
+		chrome.runtime.sendMessage(googleKey, sendData, function(){});
 
 		//sendMsg({'proto':'beeper','time':time});
 	}
@@ -186,10 +187,11 @@ var dataPackage = {
 		{
 			distance = 0;
 		}
+		
 		if(dir == "FORWARD" || dir == "前边")
 		{
 			t_xy = dataPackage.set_y;
-			t_distance[0] = Number(distance);
+			t_distance[0] = Number(distance);			
 		}
 		else if(dir == "BACKWARD" || dir == "后边")
 		{
@@ -206,20 +208,22 @@ var dataPackage = {
 			t_xy = dataPackage.set_x;
 			t_distance[0] = Number(distance);
 		}
+		
 		t_distance[1] = t_distance[0]%256;
-		t_distance[0] = Math.parseInt(t_distance[0]/256);
-		scratchData = [t_xy, t_distance];
-		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
+		t_distance[0] = Math.floor(t_distance[0]/256);
+		var sendData = [t_xy, t_distance[0], t_distance[1]];
+		
+		chrome.runtime.sendMessage(googleKey, sendData, function(){});
 	};
 	
 	ext.runRotate = function(rotate,angle) {
 		console.log("run flight rotate: "+rotate+" angel: "+angle);
 		if(rotate == "顺时针" || rotate == "CR"){
-			scratchData = [dataPackage.set_rotate, 127 + Math.round(Number(angle)/3)];
+			var sendData = [dataPackage.set_rotate, 127 + Math.round(Number(angle)/3)];
 		}else if(rotate == "逆时针" || rotate == "CCR"){
-			scratchData = [dataPackage.set_rotate, 127 - Math.round(Number(angle)/3)];
+			var sendData = [dataPackage.set_rotate, 127 - Math.round(Number(angle)/3)];
 		}
-		chrome.runtime.sendMessage(googleKey, scratchData, processInput);
+		chrome.runtime.sendMessage(googleKey, sendData, processInput);
 	};
 	
 	ext.forward_dir = function(){
@@ -240,16 +244,19 @@ var dataPackage = {
 	
 	ext.runAltitude = function(distance) {
 		console.log("run altitude "+distance);
-		if(Number(distance) > 250)
-		{
-			distance = 250;
-		}
-		else if(Number(distance) < 0)
+		var t_distance = [0, 0];
+		if(Number(distance) < 0)
 		{
 			distance = 0;
 		}
-		scratchData = [dataPackage.set_z, Number(distance)];
-		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
+		else
+		{
+			t_distance[0] = Number(distance);
+		}
+		t_distance[1] = t_distance[0]%256;
+		t_distance[0] = Math.floor(t_distance[0]/256);
+		var sendData = [dataPackage.set_z, t_distance[0], t_distance[1]];
+		chrome.runtime.sendMessage(googleKey, sendData, function(){});
 	};
 	
 	var flightData = new Object();
@@ -278,11 +285,11 @@ var dataPackage = {
 				ScratchExtensions.unregister('Ghost', descriptor, ext);
 				ScratchExtensions.register('Ghost', descriptor, ext);
 			}			
-			timerId = window.setInterval(toDo5Hz, 200);
+			//timerId = window.setInterval(toDo5Hz, 200);
 		}	
 		else if((msg.serial == "close") && (msg.serial != undefined))
 		{
-			//window.clearInterval(timerId);
+			window.clearInterval(timerId);
 		}
 		else if((msg.serial == "open") && (msg.serial != undefined))
 		{
@@ -369,12 +376,19 @@ var dataPackage = {
 	};
 	
     function toDo5Hz(){
-		scratchData[0] = dataPackage.get_flightData;
-		scratchData[1] = 0;
-		chrome.runtime.sendMessage(googleKey, scratchData, function(){});
+		// scratchData[0] = dataPackage.get_flightData;
+		// scratchData[1] = 0;
+		chrome.runtime.sendMessage(googleKey, [dataPackage.get_flightData, 0], function(){});
 		console.log(scratchData[1]);
 	}
-
+	
+	var descriptor = {
+		blocks: blocks["zh"],
+		menus: menus["zh"],
+		url: 'http://www.makerfire.com/'
+	};
+	ScratchExtensions.register('Ghost', descriptor, ext);
+	//timerId = window.setInterval(toDo5Hz, 200);
 })({});
 
 
