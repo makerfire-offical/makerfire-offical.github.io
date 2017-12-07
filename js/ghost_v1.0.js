@@ -68,6 +68,9 @@ var dataPackage = {
             [' ', '让飞机往 %d.flightDir 飞行 %d.xy 厘米','runDirection', "前边", '100'],
             [' ', '让飞机往 %d.flightRotate 旋转 %d.speed 度','runRotate', "顺时针", '100'],
             [' ', '让飞机飞到 %d.z 厘米','runAltitude','100'],
+			[' ', "彩灯连接接口 %d.numColor", "setColorPort", "1"],
+			[' ', "舵机连接接口 %d.numServo", "setServoPort", "5"],
+			[' ', "舵机 %d.runServo", "setServoRun", "停止"],
 			['h', '当遥控按了 %d.key 按钮时', 'when_key', 'K4'],
 			[' ', '左飞','left_dir'],
 			[' ', '右飞','right_dir'],
@@ -111,6 +114,9 @@ var dataPackage = {
 			speed:["0","20","50","80","100","125"],
 			xy:["40", "60", "80", "100", "120"],
 			z:["50", "100", "150", "200", "250"],
+			numColor:["1","2","3","4"],
+			numServo:["5","6"],
+			setServoRun:["正转", "反转", "停止"],
 		}
 	}
 
@@ -348,7 +354,7 @@ var dataPackage = {
 	};
 	ext.when_key = function(key){
 		console.log("choose key:"+key);
-		if(flightData.key != userKey)
+		if(flightData != userKey)
 		{
 			var tmpKey = 0;
 			
