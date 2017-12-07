@@ -22,6 +22,7 @@ var dataPackage = {
 	set_z:17,
 	set_rotate:18,
 	dir:19,
+	setvo:20,
 };
 
 (function(ext){
@@ -60,7 +61,6 @@ var dataPackage = {
 		],
 		zh:[
 			[' ', '校准', 'calibrate'],
-			[' ', '让彩色灯亮 %d.color','colorLed','黑色'],
 			[' ', '%d.beep 蜂鸣器','beeper','打开'],
             [' ', '起飞','armFlight'],
 			[' ', '降落','disarmFlight'],
@@ -68,9 +68,8 @@ var dataPackage = {
             [' ', '让飞机往 %d.flightDir 飞行 %d.xy 厘米','runDirection', "前边", '100'],
             [' ', '让飞机往 %d.flightRotate 旋转 %d.speed 度','runRotate', "顺时针", '100'],
             [' ', '让飞机飞到 %d.z 厘米','runAltitude','100'],
-			[' ', "彩灯连接接口 %d.numColor", "setColorPort", "1"],
-			[' ', "舵机连接接口 %d.numServo", "setServoPort", "5"],
-			[' ', "舵机 %d.runServo", "setServoRun", "停止"],
+			[' ', "彩灯连接接口 %d.numColor ,颜色设置为 %d.color", "setColor", "1",'黑色'],
+			[' ', "舵机连接接口 %d.numServo, 让舵机 %d.runServo", "setServo", "5", "停止"],
 			['h', '当遥控按了 %d.key 按钮时', 'when_key', 'K4'],
 			[' ', '左飞','left_dir'],
 			[' ', '右飞','right_dir'],
@@ -116,7 +115,7 @@ var dataPackage = {
 			z:["50", "100", "150", "200", "250"],
 			numColor:["1","2","3","4"],
 			numServo:["5","6"],
-			setServoRun:["正转", "反转", "停止"],
+			runServo:["正转", "反转", "停止"],
 		}
 	}
 
@@ -246,6 +245,28 @@ var dataPackage = {
 	};
 	ext.center_dir = function(){
 		chrome.runtime.sendMessage(googleKey, [dataPackage.dir, 0], function(){});
+	};
+	
+	ext.setColor = function(port, color){
+		for(var i = 0; i < menus.en.color.length; i++)
+		{
+			if(color == menus.zh.color[i] || color == menus.en.color[i]){
+				var sendData = [dataPackage.color, Number(port)*20+i];
+				chrome.runtime.sendMessage(googleKey, sendData, function(){});
+				return;
+			}
+		}
+	};
+	
+	ext.setServo = function(port, servo){
+		for(var i = 0; i < menus.zh.runServo.length; i++)
+		{
+			if(servo == menus.zh.runServo[i]){
+				var sendData = [dataPackage.servo, Number(port)*20+i];
+				chrome.runtime.sendMessage(googleKey, sendData, function(){});
+				return;
+			}
+		}
 	};
 	
 	ext.runAltitude = function(distance) {
