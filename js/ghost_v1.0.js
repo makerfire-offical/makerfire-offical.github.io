@@ -22,7 +22,7 @@ var dataPackage = {
 	set_z:17,
 	set_rotate:18,
 	dir:19,
-	setvo:20,
+	servo:20,
 };
 
 (function(ext){
