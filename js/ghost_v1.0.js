@@ -69,7 +69,7 @@ var dataPackage = {
             [' ', '让飞机往 %d.flightRotate 旋转 %d.speed 度','runRotate', "顺时针", '100'],
             [' ', '让飞机飞到 %d.z 厘米','runAltitude','100'],
 			[' ', "彩灯连接接口 %d.numColor ,颜色设置为 %d.color", "setColor", "1",'黑色'],
-			[' ', "舵机连接接口 %d.numServo, 让舵机 %d.runServo", "setServo", "5", "停止"],
+			[' ', "舵机连接接口 %d.numServo ,让舵机 %d.runServo", "setServo", "5", "停止"],
 			['h', '当遥控按了 %d.key 按钮时', 'when_key', 'K4'],
 			[' ', '左飞','left_dir'],
 			[' ', '右飞','right_dir'],
