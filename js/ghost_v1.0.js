@@ -13,7 +13,7 @@ var dataPackage = {
 	motor_8:8,
 	axis:9,	
 	calibrate:10,
-	color:11,
+	arduino:11,
 	beep:12,
 	version:13,
 	get_flightData:14,
@@ -22,7 +22,6 @@ var dataPackage = {
 	set_z:17,
 	set_rotate:18,
 	dir:19,
-	servo:20,
 };
 
 (function(ext){
@@ -42,15 +41,11 @@ var dataPackage = {
 			[' ', 'buzzer buzz %d.beep','beeper',"OFF"],
             [' ', 'Arm Flight','armFlight'],
 			[' ', 'Disarm Flight','disarmFlight'],
-            [' ', 'Set %d.motor speed %d.speed' ,'runMotor', "M1", '30'],
+            [' ', 'Set %d.motor speed %d.motorPWM' ,'runMotor', "M1", '0'],
             [' ', 'Set go %d.flightDir at speed %d.speed','runDirection', "Forward", '100'],
             [' ', 'Set rotate %d.flightRotate at speed %d.speed','runRotate', "CR", '100'],
             [' ', 'Set altitude at speed %d up','runAltitude','100'],
 			['h', "when pressed the remote keys %d.key", 'when_key', 'U1'],
-			['r', 'Throttle', 'thr'],
-			['r', 'Pitch', 'pitch'],
-			['r', 'Roll', 'roll'],
-			['r', 'Yaw', 'yaw'],
 			['r', 'YawAngle', 'yAngle'],
 			['r', 'RollAngle', 'rAngle'],
 			['r', 'PitchAngle', 'pAngle'],
@@ -251,7 +246,7 @@ var dataPackage = {
 		for(var i = 0; i < menus.en.color.length; i++)
 		{
 			if(color == menus.zh.color[i] || color == menus.en.color[i]){
-				var sendData = [dataPackage.color, Number(port)*20+i];
+				var sendData = [dataPackage.arduino, Number(port)*20+i];
 				chrome.runtime.sendMessage(googleKey, sendData, function(){});
 				return;
 			}
@@ -262,7 +257,7 @@ var dataPackage = {
 		for(var i = 0; i < menus.zh.runServo.length; i++)
 		{
 			if(servo == menus.zh.runServo[i]){
-				var sendData = [dataPackage.servo, Number(port)*20+i];
+				var sendData = [dataPackage.arduino, Number(port)*20+i];
 				chrome.runtime.sendMessage(googleKey, sendData, function(){});
 				return;
 			}
