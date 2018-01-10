@@ -64,6 +64,7 @@ var dataPackage = {
             [' ', '让飞机往 %d.flightRotate 旋转 %d.speed 度','runRotate', "顺时针", '100'],
             [' ', '让飞机飞到 %d.z 厘米','runAltitude','100'],
 			[' ', "彩灯连接接口 %d.numColor ,颜色设置为 %d.color", "setColor", "1",'黑色'],
+			[' ', "拓展接口 %d.numColor ,设置信号引脚输出为 %d.level", "setLevel", "1",'低'],
 			[' ', "舵机连接接口 %d.numServo ,让舵机 %d.runServo", "setServo", "5", "停止"],
 			['h', '当遥控按了 %d.key 按钮时', 'when_key', 'K4'],
 			[' ', '左飞','left_dir'],
@@ -111,6 +112,7 @@ var dataPackage = {
 			numColor:["1","2","3","4"],
 			numServo:["5","6"],
 			runServo:["正转", "反转", "停止"],
+			level:['低', '高'],
 		}
 	}
 
@@ -258,6 +260,17 @@ var dataPackage = {
 		{
 			if(servo == menus.zh.runServo[i]){
 				var sendData = [dataPackage.arduino, Number(port)*20+i];
+				chrome.runtime.sendMessage(googleKey, sendData, function(){});
+				return;
+			}
+		}
+	};
+	
+	ext.setLevel = function(port, level){
+		for(var i = 0; i < menus.zh.level.length; i++)
+		{
+			if(level == menus.zh.level[i]){
+				var sendData = [dataPackage.arduino, 120+Number(port)*20+i];
 				chrome.runtime.sendMessage(googleKey, sendData, function(){});
 				return;
 			}
