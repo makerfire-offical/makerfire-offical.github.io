@@ -60,8 +60,9 @@ var dataPackage = {
             [' ', '起飞','armFlight'],
 			[' ', '降落','disarmFlight'],
             [' ', ' %d.motor 电机的转速为 %d.motorPWM','runMotor', "M1", '0'],
-            [' ', '让飞机往 %d.flightDir 飞行 %d.xy 厘米','runDirection', "前边", '100'],
-            [' ', '让飞机往 %d.flightRotate 旋转 %d.speed 度','runRotate', "顺时针", '100'],
+            //[' ', '让飞机往 %d.flightDir 飞行 %d.xy 厘米','runDirection', "前边", '100'],
+			[' ', '让飞机飞到坐标 X: %d.z , Y: %d.z ','position', "250", '250'],
+            [' ', '让飞机往 %d.flightRotate 旋转 %d.motorPWM 度','runRotate', "顺时针", '30'],
             [' ', '让飞机飞到 %d.z 厘米','runAltitude','100'],
 			[' ', "彩灯连接接口 %d.numColor ,颜色设置为 %d.color", "setColor", "1",'黑色'],
 			[' ', "拓展接口 %d.numColor ,设置信号引脚输出为 %d.level", "setLevel", "1",'低'],
@@ -137,8 +138,6 @@ var dataPackage = {
     ext.calibrate = function(){
 		var sendData = [dataPackage.calibrate, 1];
 		chrome.runtime.sendMessage(googleKey, sendData, function(){});
-		sendData = [dataPackage.calibrate, 0];
-		chrome.runtime.sendMessage(googleKey, sendData, function(){});
     };
 
     ext.runMotor =  function(motor, speed){
@@ -180,7 +179,7 @@ var dataPackage = {
 
 		//sendMsg({'proto':'beeper','time':time});
 	}
-	
+	var change = 0;//用来把值改变，否则飞机不接收连续相同的值
 	ext.runDirection = function(dir,distance) {
 		console.log("run flight direction "+dir+" "+distance);
 		var t_xy = -1;
@@ -211,21 +210,89 @@ var dataPackage = {
 			t_distance[0] = Number(distance);
 		}
 		
-		t_distance[1] = t_distance[0]%256;
+		t_distance[1] = t_distance[0]%256+change;
 		t_distance[0] = Math.floor(t_distance[0]/256);
 		var sendData = [t_xy, t_distance[0], t_distance[1]];
-		
+		change = !change;
 		chrome.runtime.sendMessage(googleKey, sendData, function(){});
 	};
 	
-	ext.runRotate = function(rotate,angle) {
-		console.log("run flight rotate: "+rotate+" angel: "+angle);
-		if(rotate == "顺时针" || rotate == "CR"){
-			var sendData = [dataPackage.set_rotate, 127 + Math.round(Number(angle)/3)];
-		}else if(rotate == "逆时针" || rotate == "CCR"){
-			var sendData = [dataPackage.set_rotate, 127 - Math.round(Number(angle)/3)];
+	ext.position = function(x,y){
+		change = !change;
+		var t_x = Number(x)+change;
+		var t_y = Number(y)+change;
+		var t_highAngLowX = [0, 0];
+		var t_highAngLowY = [0, 0];
+		//if(Math.abs(t_x) < 100)
+		if(t_x < 100)//不给超出UWB四个边
+		{
+			// if(t_x < 0)
+			// {
+				// t_highAngLowX[0] = 255;
+				// t_highAngLowX[1] = 156;
+			// }
+			// else
+			{
+				t_highAngLowX[0] = 0;
+				t_highAngLowX[1] = 100;
+			}
 		}
-		chrome.runtime.sendMessage(googleKey, sendData, processInput);
+		else
+		{
+			if(t_x < 0)
+			{
+				t_x = 65536 + t_x;
+			}
+			
+			t_highAngLowX[0] = Math.floor(t_x/256);
+			t_highAngLowX[1] = t_x%256;
+			
+		}
+		//if(Math.abs(t_y) < 100)
+		if(t_x < 100)//不给超出UWB四个边
+		{
+			// if(t_y < 0)
+			// {
+				// t_highAngLowY[0] = 255;
+				// t_highAngLowY[1] = 156;
+			// }
+			// else
+			{
+				t_highAngLowY[0] = 0;
+				t_highAngLowY[1] = 100;
+			}
+		}
+		else
+		{
+			if(t_y < 0)
+			{
+				t_y = 65536 + t_y;
+			}
+			
+			t_highAngLowY[0] = Math.floor(t_y/256);
+			t_highAngLowY[1] = t_y%256;
+			
+		}
+		chrome.runtime.sendMessage(googleKey, [dataPackage.set_x, t_highAngLowX[0], t_highAngLowX[1]], function(){});
+		chrome.runtime.sendMessage(googleKey, [dataPackage.set_y, t_highAngLowY[0], t_highAngLowY[1]], function(){});
+	}
+	
+	ext.runRotate = function(rotate, angle) {
+		console.log("run flight rotate: "+rotate+" angle: "+angle);
+		var t_angle = Number(angle);
+		if(t_angle > 180)
+		{
+			t_angle = 180;
+		}
+		else if(t_angle < 0)
+		{
+			t_angle = 0;
+		}
+		if(rotate == "顺时针" || rotate == "CR"){
+			chrome.runtime.sendMessage(googleKey, [dataPackage.set_rotate, t_angle/3], function(){});
+		}else if(rotate == "逆时针" || rotate == "CCR"){
+			chrome.runtime.sendMessage(googleKey, [dataPackage.set_rotate, 128+t_angle/3], function(){});
+		}
 	};
 	
 	ext.forward_dir = function(){
@@ -298,7 +365,7 @@ var dataPackage = {
 	var port = chrome.runtime.connect(googleKey,{name: "Ghost"});
 
 	port.onMessage.addListener(function(msg) {
-		//console.log(msg.serial);
+		//console.log(msg);
 		
 		if ((msg.lang != lang) && (msg.lang != undefined))
 		{
@@ -320,15 +387,14 @@ var dataPackage = {
 				ScratchExtensions.unregister('Ghost', descriptor, ext);
 				ScratchExtensions.register('Ghost', descriptor, ext);
 			}			
-			//timerId = window.setInterval(toDo5Hz, 200);
 		}	
 		else if((msg.serial == "close") && (msg.serial != undefined))
 		{
-			window.clearInterval(timerId);
+			//window.clearInterval(timerId);
 		}
 		else if((msg.serial == "open") && (msg.serial != undefined))
 		{
-			timerId = window.setInterval(toDo5Hz, 200);
+			//chrome.runtime.sendMessage(googleKey, [dataPackage.get_flightData, 0], function(){});
 		}
 		else
 		{
@@ -338,38 +404,43 @@ var dataPackage = {
 	});
 
 	ext.pAngle = function() {
-		var y = flightData[8] + flightData[9]*256;
-		y = y > 32767 ? (y - 65536)/10 : y/10;
-		return y;
+		// var y = flightData[8] + flightData[9]*256;
+		// y = y > 32767 ? (y - 65536)/10 : y/10;
+		// return y;
+		return flightData.pitchAngle;
 	};
 	ext.yAngle = function() {
-		var z = flightData[10] + flightData[11]*256;
-		z = z > 32767 ? (z - 65536)/10 : z/10;
-		return z;
+		// var z = flightData[10] + flightData[11]*256;
+		// z = z > 32767 ? (z - 65536)/10 : z/10;
+		// return z;
+		return flightData.yawAngle;
 	};
 	ext.rAngle = function() {
-		var x = flightData[6] + flightData[7]*256;
-		x = x > 32767 ? (x - 65536)/10 : x/10;
-		return x;
+		// var x = flightData[6] + flightData[7]*256;
+		// x = x > 32767 ? (x - 65536)/10 : x/10;
+		// return x;
+		return flightData.rollAngle;
 	};
 	ext.voltage = function() {
-		var V = flightData[12]/10;
-		return V;
+		// var V = flightData[12]/10;
+		// return V;
+		return flightData.voltage;
 	};
 	ext.high = function() {
-		//var high = flightData[4] + flightDataa[5]*256;
-		//high = high > 32767 ? (high - 65536)/10 : high/10;
-		return flightData[4];
+		//return flightData[4];
+		return flightData.z;
 	};
 	ext.flightX = function() {
-		var x = flightData[0] + flightData[1]*256;
-		x = x > 32767 ? (x - 65536)/10 : x/10;
-		return x;
+		// var x = flightData[0] + flightData[1]*256;
+		// x = x > 32767 ? (x - 65536)/10 : x/10;
+		// return x;
+		return flightData.x;
 	};
-	ext.flightX = function() {
-		var y = flightData[2] + flightData[3]*256;
-		y = y > 32767 ? (y - 65536)/10 : y/10;
-		return y;
+	ext.flightY = function() {
+		// var y = flightData[2] + flightData[3]*256;
+		// y = y > 32767 ? (y - 65536)/10 : y/10;
+		// return y;
+		return flightData.y;
 	};
 	
 	ext.altMode = function(altFlag) {
@@ -410,20 +481,12 @@ var dataPackage = {
 		return false;
 	};
 	
-    function toDo5Hz(){
-		// scratchData[0] = dataPackage.get_flightData;
-		// scratchData[1] = 0;
-		chrome.runtime.sendMessage(googleKey, [dataPackage.get_flightData, 0], function(){});
-		console.log(scratchData[1]);
-	}
-	
 	var descriptor = {
 		blocks: blocks["zh"],
 		menus: menus["zh"],
 		url: 'http://www.makerfire.com/'
 	};
 	ScratchExtensions.register('Ghost', descriptor, ext);
-	//timerId = window.setInterval(toDo5Hz, 200);
 })({});
 
 
