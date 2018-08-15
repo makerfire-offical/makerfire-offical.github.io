@@ -67,6 +67,9 @@ var dataPackage = {
 			[' ', "彩灯连接接口 %d.numColor ,颜色设置为 %d.color", "setColor", "1",'黑色'],
 			[' ', "拓展接口 %d.numColor ,设置信号引脚输出为 %d.level", "setLevel", "1",'低'],
 			[' ', "舵机连接接口 %d.numServo ,让舵机 %d.runServo", "setServo", "5", "停止"],
+			[' ', "火焰传感器接 %d.numADC", "3"],
+			[' ', "红外线传感器接 %d.numADC", "3"],
+			[' ', "温度传感器接 %d.numADC", "3"],
 			['h', '当遥控按了 %d.key 按钮时', 'when_key', 'K4'],
 			[' ', '左飞','left_dir'],
 			[' ', '右飞','right_dir'],
@@ -80,6 +83,8 @@ var dataPackage = {
 			['r', '当前高度', 'high'],
 			['r', '飞机X', 'flightX'],
 			['r', '飞机Y', 'flightY'],
+			['r', '接口3传感器值', 'ADC_3'],
+			['r', '接口4传感器值', 'ADC_4'],
 		]
 	}
 	var menus = {
@@ -112,6 +117,7 @@ var dataPackage = {
 			z:["50", "100", "150", "200", "250"],
 			numColor:["1","2","3","4"],
 			numServo:["5","6"],
+			numADC:["3","4"],
 			runServo:["正转", "反转", "停止"],
 			level:['低', '高'],
 		}
@@ -441,6 +447,12 @@ var dataPackage = {
 		// y = y > 32767 ? (y - 65536)/10 : y/10;
 		// return y;
 		return flightData.y;
+	};
+	ext.ADC_3 = function() {
+		return 0;
+	};
+	ext.ADC_4 = function() {
+		return 0;
 	};
 	
 	ext.altMode = function(altFlag) {
