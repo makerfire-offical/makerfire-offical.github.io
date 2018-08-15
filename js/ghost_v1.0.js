@@ -67,9 +67,9 @@ var dataPackage = {
 			[' ', "彩灯连接接口 %d.numColor ,颜色设置为 %d.color", "setColor", "1",'黑色'],
 			[' ', "拓展接口 %d.numColor ,设置信号引脚输出为 %d.level", "setLevel", "1",'低'],
 			[' ', "舵机连接接口 %d.numServo ,让舵机 %d.runServo", "setServo", "5", "停止"],
-			[' ', "火焰传感器接 %d.numADC", "3"],
-			[' ', "红外线传感器接 %d.numADC", "3"],
-			[' ', "温度传感器接 %d.numADC", "3"],
+			[' ', "火焰传感器接 %d.numADC", "setFire", "3"],
+			[' ', "红外线传感器接 %d.numADC", "setInfrared", "3"],
+			[' ', "温度传感器接 %d.numADC", "setT", "3"],
 			['h', '当遥控按了 %d.key 按钮时', 'when_key', 'K4'],
 			[' ', '左飞','left_dir'],
 			[' ', '右飞','right_dir'],
@@ -185,6 +185,20 @@ var dataPackage = {
 
 		//sendMsg({'proto':'beeper','time':time});
 	}
+	
+	ext.setFire = function(port)
+	{
+		console.log("fire port:"+port);
+	}
+	ext.setInfrared = function(port)
+	{
+		console.log("infrared port:"+port);
+	}
+	ext.setT = function(port)
+	{
+		console.log("temperature port:"+port);
+	}
+	
 	var change = 0;//用来把值改变，否则飞机不接收连续相同的值
 	ext.runDirection = function(dir,distance) {
 		console.log("run flight direction "+dir+" "+distance);
