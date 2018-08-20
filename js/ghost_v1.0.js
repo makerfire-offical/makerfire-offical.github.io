@@ -111,7 +111,7 @@ var dataPackage = {
             flightRotate:['顺时针','逆时针'],
 			color:['黑色','白色','红色','橙色','黄色','绿色','蓝色','粉色','紫色'],
 			beep:["打开","关闭"],
-			key:["K4","K3","K8","K7"],
+			key:["K1","K2","K3","K4","K5","K6","K7","K8","K9","K10"],
 			speed:["0","20","50","80","100","125"],
 			xy:["40", "60", "80", "100", "120"],
 			z:["50", "100", "150", "200", "250"],
@@ -424,82 +424,57 @@ var dataPackage = {
 	});
 
 	ext.pAngle = function() {
-		// var y = flightData[8] + flightData[9]*256;
-		// y = y > 32767 ? (y - 65536)/10 : y/10;
-		// return y;
 		return flightData.pitchAngle;
 	};
 	ext.yAngle = function() {
-		// var z = flightData[10] + flightData[11]*256;
-		// z = z > 32767 ? (z - 65536)/10 : z/10;
-		// return z;
+
 		return flightData.yawAngle;
 	};
 	ext.rAngle = function() {
-		// var x = flightData[6] + flightData[7]*256;
-		// x = x > 32767 ? (x - 65536)/10 : x/10;
-		// return x;
 		return flightData.rollAngle;
 	};
 	ext.voltage = function() {
-		// var V = flightData[12]/10;
-		// return V;
 		return flightData.voltage;
 	};
 	ext.high = function() {
-		//return flightData[4];
 		return flightData.z;
 	};
 	ext.flightX = function() {
-		// var x = flightData[0] + flightData[1]*256;
-		// x = x > 32767 ? (x - 65536)/10 : x/10;
-		// return x;
 		return flightData.x;
 	};
 	ext.flightY = function() {
-		// var y = flightData[2] + flightData[3]*256;
-		// y = y > 32767 ? (y - 65536)/10 : y/10;
-		// return y;
 		return flightData.y;
 	};
 	ext.ADC_3 = function() {
+		if(flightData.arduinoData > 0 && flightData.arduinoData < 101)
+		{
+			return flightData.arduinoData;
+		}
+
 		return 0;
+		
 	};
 	ext.ADC_4 = function() {
+		
+		if(flightData.arduinoData > 100 && flightData.arduinoData < 201)
+		{
+			return flightData.arduinoData - 100;
+		}
+
 		return 0;
+		
+
 	};
 	
-	ext.altMode = function(altFlag) {
-		if(altFlag == '打开'){
-			sendMsg({'proto':'altMode','mode':'OPEN'});
-		}else if(altFlag == '关闭'){
-			sendMsg({'proto':'altMode','mode':'CLOSE'});
-		}else{
-			sendMsg({'proto':'altMode','mode':altFlag});
-		}
-	};
 	ext.when_key = function(key){
 		console.log("choose key:"+key);
-		if(flightData != userKey)
+		if(flightData.remoteKey != userKey)
 		{
 			var tmpKey = 0;
 			
 			userKey = flightData.key;
 			console.log("user press key:"+userKey);
-			if(userKey == "1")
-			{
-				tmpKey = 4;
-			} else if(userKey == "2")
-			{
-				tmpKey = 3;
-			} else if(userKey == "3")
-			{
-				tmpKey = 8;
-			} else if(userKey == "4")
-			{
-				tmpKey = 7;
-			}
-			if(key === ("K"+tmpKey)){
+			if(key === ("K"+userKey)){
 				return true;
 			}
 		}
