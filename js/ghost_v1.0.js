@@ -67,10 +67,10 @@ var dataPackage = {
 			[' ', "彩灯连接接口 %d.numColor ,颜色设置为 %d.color", "setColor", "1",'黑色'],
 			[' ', "拓展接口 %d.numColor ,设置信号引脚输出为 %d.level", "setLevel", "1",'低'],
 			[' ', "舵机连接接口 %d.numServo ,让舵机 %d.runServo", "setServo", "5", "停止"],
-			[' ', "火焰传感器接 %d.numADC", "setFire", "3"],
-			[' ', "红外线传感器接 %d.numADC", "setInfrared", "3"],
-			[' ', "温度传感器接 %d.numADC", "setT", "3"],
-			['h', '当遥控按了 %d.key 按钮时', 'when_key', 'K4'],
+			//[' ', "火焰传感器接 %d.numADC", "setFire", "3"],
+			//[' ', "红外线传感器接 %d.numADC", "setInfrared", "3"],
+			//[' ', "温度传感器接 %d.numADC", "setT", "3"],
+			['h', '当遥控按了 %d.key 按钮时', 'when_key', 'K5'],
 			[' ', '左飞','left_dir'],
 			[' ', '右飞','right_dir'],
 			[' ', '前飞','forward_dir'],
@@ -419,6 +419,7 @@ var dataPackage = {
 		else
 		{
 			flightData = msg;
+			
 		}
 		
 	});
@@ -445,35 +446,35 @@ var dataPackage = {
 	ext.flightY = function() {
 		return flightData.y;
 	};
+	
+	var adcValue = [0,0];
 	ext.ADC_3 = function() {
 		if(flightData.arduinoData > 0 && flightData.arduinoData < 101)
 		{
-			return flightData.arduinoData;
+			adcValue[0] = flightData.arduinoData;
 		}
 
-		return 0;
+		return adcValue[0];
 		
 	};
 	ext.ADC_4 = function() {
 		
-		if(flightData.arduinoData > 100 && flightData.arduinoData < 201)
+		if(flightData.arduinoData > 100)
 		{
-			return flightData.arduinoData - 100;
+			adcValue[1] = flightData.arduinoData - 100;
 		}
 
-		return 0;
+		return adcValue[1];
 		
 
 	};
 	
 	ext.when_key = function(key){
-		console.log("choose key:"+key);
+		//console.log("choose key:"+key);
 		if(flightData.remoteKey != userKey)
 		{
-			var tmpKey = 0;
-			
-			userKey = flightData.key;
-			console.log("user press key:"+userKey);
+			userKey = flightData.remoteKey;
+			console.log("user press key:"+flightData.remoteKey);
 			if(key === ("K"+userKey)){
 				return true;
 			}
