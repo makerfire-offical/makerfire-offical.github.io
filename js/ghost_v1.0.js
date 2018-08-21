@@ -243,56 +243,25 @@ var dataPackage = {
 		var t_y = Number(y)+change;
 		var t_highAngLowX = [0, 0];
 		var t_highAngLowY = [0, 0];
-		//if(Math.abs(t_x) < 100)
-		if(t_x < 100)//不给超出UWB四个边
+		
+		if(t_x < 0)
 		{
-			// if(t_x < 0)
-			// {
-				// t_highAngLowX[0] = 255;
-				// t_highAngLowX[1] = 156;
-			// }
-			// else
-			{
-				t_highAngLowX[0] = 0;
-				t_highAngLowX[1] = 100;
-			}
+			t_x = 65536 + t_x;
 		}
-		else
+		
+		t_highAngLowX[0] = Math.floor(t_x/256);
+		t_highAngLowX[1] = t_x%256;
+			
+
+		if(t_y < 0)
 		{
-			if(t_x < 0)
-			{
-				t_x = 65536 + t_x;
-			}
-			
-			t_highAngLowX[0] = Math.floor(t_x/256);
-			t_highAngLowX[1] = t_x%256;
-			
+			t_y = 65536 + t_y;
 		}
-		//if(Math.abs(t_y) < 100)
-		if(t_x < 100)//不给超出UWB四个边
-		{
-			// if(t_y < 0)
-			// {
-				// t_highAngLowY[0] = 255;
-				// t_highAngLowY[1] = 156;
-			// }
-			// else
-			{
-				t_highAngLowY[0] = 0;
-				t_highAngLowY[1] = 100;
-			}
-		}
-		else
-		{
-			if(t_y < 0)
-			{
-				t_y = 65536 + t_y;
-			}
+		
+		t_highAngLowY[0] = Math.floor(t_y/256);
+		t_highAngLowY[1] = t_y%256;
 			
-			t_highAngLowY[0] = Math.floor(t_y/256);
-			t_highAngLowY[1] = t_y%256;
-			
-		}
+		
 		chrome.runtime.sendMessage(googleKey, [dataPackage.set_x, t_highAngLowX[0], t_highAngLowX[1]], function(){});
 		chrome.runtime.sendMessage(googleKey, [dataPackage.set_y, t_highAngLowY[0], t_highAngLowY[1]], function(){});
 	}
