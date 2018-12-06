@@ -111,7 +111,7 @@ var dataPackage = {
             flightRotate:['顺时针','逆时针'],
 			color:['黑色','白色','红色','橙色','黄色','绿色','蓝色','粉色','紫色'],
 			beep:["打开","关闭"],
-			key:["K1","K2","K3","K4","K5","K6","K7","K8","K9","K10"],
+			key:["K7","K4","K5","K6","K9","K10"],
 			speed:["0","20","50","80","100","125"],
 			xy:["40", "60", "80", "100", "120"],
 			z:["50", "100", "150", "200", "250"],
@@ -243,25 +243,56 @@ var dataPackage = {
 		var t_y = Number(y)+change;
 		var t_highAngLowX = [0, 0];
 		var t_highAngLowY = [0, 0];
-		
-		if(t_x < 0)
+		//if(Math.abs(t_x) < 100)
+		// if(t_x < 100)//不给超出UWB四个边
+		// {
+			// if(t_x < 0)
+			// {
+				// t_highAngLowX[0] = 255;
+				// t_highAngLowX[1] = 156;
+			// }
+			// else
+			// {
+				// t_highAngLowX[0] = 0;
+				// t_highAngLowX[1] = 100;
+			// }
+		// }
+		// else
 		{
-			t_x = 65536 + t_x;
-		}
-		
-		t_highAngLowX[0] = Math.floor(t_x/256);
-		t_highAngLowX[1] = t_x%256;
+			if(t_x < 0)
+			{
+				t_x = 65536 + t_x;
+			}
 			
-
-		if(t_y < 0)
+			t_highAngLowX[0] = Math.floor(t_x/256);
+			t_highAngLowX[1] = t_x%256;
+			
+		}
+		//if(Math.abs(t_y) < 100)
+		// if(t_x < 100)//不给超出UWB四个边
+		// {
+			// if(t_y < 0)
+			// {
+				// t_highAngLowY[0] = 255;
+				// t_highAngLowY[1] = 156;
+			// }
+			// else
+			// {
+				// t_highAngLowY[0] = 0;
+				// t_highAngLowY[1] = 100;
+			// }
+		// }
+		// else
 		{
-			t_y = 65536 + t_y;
-		}
-		
-		t_highAngLowY[0] = Math.floor(t_y/256);
-		t_highAngLowY[1] = t_y%256;
+			if(t_y < 0)
+			{
+				t_y = 65536 + t_y;
+			}
 			
-		
+			t_highAngLowY[0] = Math.floor(t_y/256);
+			t_highAngLowY[1] = t_y%256;
+			
+		}
 		chrome.runtime.sendMessage(googleKey, [dataPackage.set_x, t_highAngLowX[0], t_highAngLowX[1]], function(){});
 		chrome.runtime.sendMessage(googleKey, [dataPackage.set_y, t_highAngLowY[0], t_highAngLowY[1]], function(){});
 	}
@@ -439,16 +470,16 @@ var dataPackage = {
 	};
 	
 	ext.when_key = function(key){
-		//console.log("choose key:"+key);
-		if(flightData.remoteKey != userKey)
+
+		if(flightData.remoteKey != 0)
 		{
-			userKey = flightData.remoteKey;
-			console.log("user press key:"+flightData.remoteKey);
-			if(key === ("K"+userKey)){
+			var index = menus.zh.key.indexOf(key);
+			console.log("user press key:"+flightData.remoteKey+" choose index:"+(0x01<<index));
+			if((0x01<<index) === flightData.remoteKey){
+				flightData.remoteKey = 0;
 				return true;
 			}
 		}
-		
 		return false;
 	};
 	
