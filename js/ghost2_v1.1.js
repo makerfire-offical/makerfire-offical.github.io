@@ -23,16 +23,14 @@ var dataPackage = {
 	set_rotate:18,
 	dir:19,
 	
+	video_begin:21,
+	video_stop:22,
+	photo:23,
 };
 
-var pos = {
-	xl:0,
-	xh:0,
-	yl:0,
-	yh:0,
-	zl:0,
-	zh:0
-};
+var COLOR_LED = 1;
+var SERVO = 2;
+
 
 (function(ext){
     var connected = false;
@@ -42,6 +40,14 @@ var pos = {
 	var userKey = 0;
 	var timerId = -1;
 	var lang = "test";
+	var pos = {
+		xl:0,
+		xh:0,
+		yl:0,
+		yh:0,
+		zl:0,
+		zh:0
+	};
 
 	var blocks = {
 		en:[
@@ -77,8 +83,8 @@ var pos = {
             [' ', '让飞机往 %d.flightRotate 旋转 %d.motorPWM 度','runRotate', "顺时针", '30'],
             [' ', '让飞机飞到 %d.z 厘米','runAltitude','100'],
 			[' ', "彩灯连接接口 %d.numColor ,颜色设置为 %d.color", "setColor", "1",'黑色'],
-			[' ', "拓展接口 %d.numColor ,设置信号引脚输出为 %d.level", "setLevel", "1",'低'],
-			[' ', "舵机连接接口 %d.numServo ,让舵机 %d.runServo", "setServo", "5", "停止"],
+			//[' ', "拓展接口 %d.numColor ,设置信号引脚输出为 %d.level", "setLevel", "1",'低'],
+			[' ', "舵机连接接口 %d.numServo ,让舵机 %d.runServo", "setServo", "1", "正转"],
 			//[' ', "火焰传感器接 %d.numADC", "setFire", "3"],
 			//[' ', "红外线传感器接 %d.numADC", "setInfrared", "3"],
 			//[' ', "温度传感器接 %d.numADC", "setT", "3"],
@@ -90,6 +96,9 @@ var pos = {
 			[' ', '以 %d.dirSpeed 速度往上飞','up_dir', '普通'],
 			[' ', '以 %d.dirSpeed 速度往下飞','down_dir', '普通'],
 			[' ', '停','stop_dir'],
+			[' ', '拍照','photo'],
+			[' ', '开始录像','video_begin'],
+			[' ', '停止录像','video_stop'],
 			['r', '航向角', 'yAngle'],
 			['r', '横滚角', 'rAngle'],
 			['r', '俯仰角', 'pAngle'],
@@ -97,8 +106,8 @@ var pos = {
 			['r', '当前高度', 'high'],
 			['r', '飞机X', 'flightX'],
 			['r', '飞机Y', 'flightY'],
-			['r', '接口3传感器值', 'ADC_3'],
-			['r', '接口4传感器值', 'ADC_4'],
+			//['r', '接口3传感器值', 'ADC_3'],
+			//['r', '接口4传感器值', 'ADC_4'],
 		]
 	}
 	var menus = {
@@ -130,8 +139,8 @@ var pos = {
 			speed:["0","20","50","80","100","125"],
 			xy:["40", "60", "80", "100", "120"],
 			z:["50", "100", "150", "200", "250"],
-			numColor:["1","2","3","4"],
-			numServo:["5","6"],
+			numColor:["1","3","6","8"],
+			numServo:["1","3","6","8"],
 			numADC:["3","4"],
 			runServo:["正转", "反转", "停止"],
 			level:['低', '高'],
@@ -145,17 +154,23 @@ var pos = {
 
 	ext._shutdown = function() {};
 	
-/*     ext.armFlight = function(){
-        //console.log("arm flight ");
-		var sendData = [dataPackage.arm, 1];
+	ext.video_begin = function(){
+        //console.log("video begin ");
+		var sendData = [dataPackage.video_begin];
 		chrome.runtime.sendMessage(googleKey, sendData, function(){});
     };
 	
-	ext.disarmFlight = function(){
-        //console.log("disarm flight ");
-		var sendData = [dataPackage.arm, 0];
+	ext.video_stop = function(){
+        //console.log("video stop ");
+		var sendData = [dataPackage.video_stop];
 		chrome.runtime.sendMessage(googleKey, sendData, function(){});
-    }; */
+    };
+	
+	ext.photo = function(){
+        //console.log("photograph ");
+		var sendData = [dataPackage.photo];
+		chrome.runtime.sendMessage(googleKey, sendData, function(){});
+    };
 	
 	ext.takeOff = function(){
         //console.log("take off ");
@@ -287,7 +302,7 @@ var pos = {
 		pos.yl = t_y%256;
 			
 		
-		chrome.runtime.sendMessage(googleKey, [dataPackage.set_pos, pos.xl, pos.xh, pos.yl, pos.yh, pos.zl, pos.zh], function(){});
+		chrome.runtime.sendMessage(googleKey, [dataPackage.set_pos, pos.xl, pos.xh, pos.yl, pos.yh, 0, 0], function(){});
 	}
 	
 	ext.runRotate = function(rotate, angle) {
@@ -334,7 +349,7 @@ var pos = {
 		for(var i = 0; i < menus.en.color.length; i++)
 		{
 			if(color == menus.zh.color[i] || color == menus.en.color[i]){
-				var sendData = [dataPackage.arduino, Number(port)*20+i];
+				var sendData = [dataPackage.arduino, COLOR_LED, Number(port), i, 0, 0, 0, 0,0,0];
 				chrome.runtime.sendMessage(googleKey, sendData, function(){});
 				return;
 			}
@@ -345,7 +360,7 @@ var pos = {
 		for(var i = 0; i < menus.zh.runServo.length; i++)
 		{
 			if(servo == menus.zh.runServo[i]){
-				var sendData = [dataPackage.arduino, Number(port)*20+i];
+				var sendData = [dataPackage.arduino, SERVO, Number(port), i, 0, 0, 0, 0,0,0];
 				chrome.runtime.sendMessage(googleKey, sendData, function(){});
 				return;
 			}
@@ -356,7 +371,7 @@ var pos = {
 		for(var i = 0; i < menus.zh.level.length; i++)
 		{
 			if(level == menus.zh.level[i]){
-				var sendData = [dataPackage.arduino, 120+Number(port)*20+i];
+				var sendData = [dataPackage.arduino, 0, Number(port), i, 0, 0, 0, 0,0,0];
 				chrome.runtime.sendMessage(googleKey, sendData, function(){});
 				return;
 			}
@@ -377,7 +392,7 @@ var pos = {
 		pos.zl = t_distance[0]%256;
 		pos.zh = Math.floor(t_distance[0]/256);
 		
-		chrome.runtime.sendMessage(googleKey, [dataPackage.set_pos, pos.xl, pos.xh, pos.yl, pos.yh, pos.zl, pos.zh], function(){});
+		chrome.runtime.sendMessage(googleKey, [dataPackage.set_pos, 0, 0, 0, 0, pos.zl, pos.zh], function(){});
 	};
 	
 	var flightData = new Object();
